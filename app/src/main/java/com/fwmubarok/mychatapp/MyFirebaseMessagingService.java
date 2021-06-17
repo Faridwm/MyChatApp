@@ -45,4 +45,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageSent(s);
         Log.d("Sending", "Message Sent: " + s );
     }
+
+    @Override
+    public void onSendError(@NonNull String s, @NonNull Exception e) {
+        super.onSendError(s, e);
+        Log.d("Sending Error", "Message Error: " + s );
+    }
 }
