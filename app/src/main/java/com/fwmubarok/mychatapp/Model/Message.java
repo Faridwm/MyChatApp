@@ -15,9 +15,21 @@ public class Message {
     @SerializedName("data")
     private Map<String, String> data;
 
-    public Message(String to, Map<String, String> data) {
+    @SerializedName("notification")
+    private Notification notification;
+
+    public Message(String to, Map<String, String> data, Notification notification) {
         this.to = "/topics/" + to;
         this.data = data;
+        this.notification = notification;
+    }
+
+    public Notification getNotification() {
+        return notification;
+    }
+
+    public void setNotification(Notification notification) {
+        this.notification = notification;
     }
 
     public String getTo() {

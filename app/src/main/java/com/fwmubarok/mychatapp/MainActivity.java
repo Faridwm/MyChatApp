@@ -5,17 +5,25 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.fwmubarok.mychatapp.Model.Message;
+import com.fwmubarok.mychatapp.Model.Notification;
 import com.fwmubarok.mychatapp.Model.SendResponse;
 import com.fwmubarok.mychatapp.My_interface.FCMinterface;
 import com.fwmubarok.mychatapp.REST.ApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private String dvc_token_api_22 = "dGqJqjcdSZq1XyvP5MSWTk:APA91bHIZJy7d317J2RBENDvjg89WdZxcuKo0SkCQgoeTrcJhUBC2fjt45cnpIUX3XFLXzLzJhVAwzYAs5abRQjamFiKMtqKlndeCKXZ8P6n8Xz335hY2asb1faB9UieQLmDYhtM3T7Z";
     private final String SENDER_ID = "108088922114";
     private FCMinterface fcm_interface;
+
+
+    private Button btn_send_1, btn_send_2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,14 +68,41 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         FirebaseMessaging.getInstance().subscribeToTopic(topic);
-        String str_msg = "Halo ini tes kirim";
+        btn_send_1 = findViewById(R.id.btn_send_1);
+        btn_send_2 = findViewById(R.id.btn_send_2);
+
+        btn_send_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SendMessage("Halo ini tes kirim melalui HTTPS");
+            }
+        });
+
+        btn_send_2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SendMessage_2("Halo ini tes kirim melalui method");
+            }
+        });
+
+
+    }
+
+    public void SendMessage(String str_msg){
+        Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        String strDate = dateFormat.format(date);
+//        String str_msg = "Halo ini tes kirim";
         HashMap<String, String> data = new HashMap<>();
         data.put("From", topic);
         data.put("To", "");
         data.put("Message", str_msg);
+        data.put("Timestamp", strDate);
+
+        Notification notification = new Notification(str_msg);
 
 //        Data data = new Data(topic, dvc_token, msg);
-        Message message = new Message(topic, data);
+        Message message = new Message(topic, data, notification);
 
 //        Log.d("topic", message.getTopic());
 
@@ -79,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 SendResponse sr = response.body();
-                Log.d("Sukses", Integer.toString(sr.getSuccess()));
+                Log.d("Sukses", Long.toString(sr.getMessage_id()));
             }
 
             @Override
@@ -87,29 +125,27 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Message: " + t.getMessage());
             }
         });
+    }
 
+    public void SendMessage_2(String str_msg) {
+        Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        String strDate = dateFormat.format(date);
+        AtomicInteger msgId = new AtomicInteger();
 
-//        AtomicInteger msgId = new AtomicInteger();
-//
-//        String to = SENDER_ID + "@fcm.googleapis.com";
-//
-//
-//        Date date = new Date();
-//        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-//        String strDate = dateFormat.format(date);
-//
+        String to = SENDER_ID + "@fcm.googleapis.com";
 
-//
-//        RemoteMessage message = new RemoteMessage.Builder(to)
-//                .setMessageId(String.valueOf(msgId.get()))
-//                .setData(msg)
-//                .build();
-//
-//        FirebaseMessaging fm = FirebaseMessaging.getInstance();
-//        fm.send(message);
+        HashMap<String, String> data = new HashMap<>();
+        data.put("From", topic);
+        data.put("To", "");
+        data.put("Message", str_msg);
+        data.put("Timestamp", strDate);
+        RemoteMessage message = new RemoteMessage.Builder(to)
+                .setMessageId(String.valueOf(msgId.get()))
+                .setData(data)
+                .build();
 
-
-
-
+        FirebaseMessaging fm = FirebaseMessaging.getInstance();
+        fm.send(message);
     }
 }

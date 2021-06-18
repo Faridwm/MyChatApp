@@ -10,8 +10,7 @@ public class Notification {
     @SerializedName("body")
     private String body;
 
-    public Notification(String title, String body) {
-        this.title = title;
+    public Notification(String body) {
         this.body = body;
     }
 
