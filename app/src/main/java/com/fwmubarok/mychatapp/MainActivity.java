@@ -26,6 +26,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
@@ -156,7 +157,9 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        databaseReference.child("db_chat").child("chat").child(topic).addChildEventListener(childEventListener);
+        Query message_topic_query =  databaseReference.child("db_chat").child("chat").child(topic).orderByChild("timestamp");
+
+        message_topic_query.addChildEventListener(childEventListener);
     }
 
     public void SendMessage(String str_msg){
