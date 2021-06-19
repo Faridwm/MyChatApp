@@ -1,16 +1,19 @@
 package com.fwmubarok.mychatapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fwmubarok.mychatapp.Model.Message;
 import com.fwmubarok.mychatapp.Model.Notification;
+import com.fwmubarok.mychatapp.Model.ReadMessageTopic;
 import com.fwmubarok.mychatapp.Model.SendResponse;
 import com.fwmubarok.mychatapp.My_interface.FCMinterface;
 import com.fwmubarok.mychatapp.REST.ApiClient;
@@ -18,13 +21,18 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,8 +50,11 @@ public class MainActivity extends AppCompatActivity {
     private String dvc_token_api_22 = "dGqJqjcdSZq1XyvP5MSWTk:APA91bHIZJy7d317J2RBENDvjg89WdZxcuKo0SkCQgoeTrcJhUBC2fjt45cnpIUX3XFLXzLzJhVAwzYAs5abRQjamFiKMtqKlndeCKXZ8P6n8Xz335hY2asb1faB9UieQLmDYhtM3T7Z";
     private final String SENDER_ID = "108088922114";
     private FCMinterface fcm_interface;
+    private DatabaseReference databaseReference;
 
+    private ArrayList<ReadMessageTopic> readMessageTopics = new ArrayList<>();
 
+    private TextView tv_db_read;
     private Button btn_send_1, btn_send_2;
 
     @Override
@@ -51,15 +62,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        //Test Langsung ketika run.
-//        FirebaseDatabase database = FirebaseDatabase.getInstance("https://mychatapp-8a494-default-rtdb.asia-southeast1.firebasedatabase.app");
-//        DatabaseReference myRef = database.getReference("mychatapp-8a494-default-rtdb");
-//
-//        myRef.setValue("Hello, World!");
-//
-//        //Akhir dari test langsung.
-
         fcm_interface = ApiClient.getClient().create(FCMinterface.class);
+        databaseReference = FirebaseDatabase.getInstance("https://mychatapp-8a494-default-rtdb.asia-southeast1.firebasedatabase.app").getReference();
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
@@ -80,9 +84,24 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        FirebaseMessaging.getInstance().subscribeToTopic(topic);
+        FirebaseMessaging.getInstance().subscribeToTopic(topic)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("Subscribe Topic", "Berhasil subscribe ke topik " + topic);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("Subscribe Topic", "Gagal subscribe ke topik " + topic + "\nError: " + e.getMessage());
+                    }
+                });
+        tv_db_read = findViewById(R.id.db_read);
         btn_send_1 = findViewById(R.id.btn_send_1);
         btn_send_2 = findViewById(R.id.btn_send_2);
+        getMessage(topic);
+
 
         btn_send_1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,6 +118,45 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public void getMessage(String topic) {
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Log.d("On Child Added", snapshot.getKey());
+                ReadMessageTopic msg_topic = snapshot.getValue(ReadMessageTopic.class);
+                msg_topic.setMessage_id(snapshot.getKey());
+                readMessageTopics.add(msg_topic);
+                String output = "";
+                for (int i = 0; i < readMessageTopics.size(); i++) {
+                    output += readMessageTopics.get(i).getMessage_id() + "-----" + readMessageTopics.get(i).getTimestamp() + "\n";
+                }
+                tv_db_read.setText(output);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, "loadMessage:onCancelled " + error.getMessage());
+            }
+        };
+
+        databaseReference.child("db_chat").child("chat").child(topic).addChildEventListener(childEventListener);
     }
 
     public void SendMessage(String str_msg){
@@ -154,8 +212,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void SendToDB(long message_id, String from, String to, String message, String timestamp) {
         Log.d("DB CRUD", "Masuk Ke Fungsi SendToDB");
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://mychatapp-8a494-default-rtdb.asia-southeast1.firebasedatabase.app")
-                .getReference();
+
 
         HashMap<String, Object> data = new HashMap<>();
 //        data.put("message_id", message_id);
