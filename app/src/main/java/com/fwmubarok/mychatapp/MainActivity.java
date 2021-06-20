@@ -3,6 +3,8 @@ package com.fwmubarok.mychatapp;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -16,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fwmubarok.mychatapp.Adapter.MessageAdapter;
 import com.fwmubarok.mychatapp.Model.Message;
 import com.fwmubarok.mychatapp.Model.Notification;
 import com.fwmubarok.mychatapp.Model.ReadMessageTopic;
@@ -39,6 +42,8 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,23 +56,35 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
     private final String topic = "test";
-    private String token;
+    public String token;
     private String dvc_token = "e2vrdkAzTEy25cb66sKXAX:APA91bFsKMoG1WA4PT3DjZ-0GcwnEe1uLwMuDyfrQQmEocjk1l0BYdJZH0-pVcv3XrLvdCu0M_U17czpRBZAmh0wV-eaB3rfDNcMvQT6pP3SJzhMaL6i9j1M3-BO3urQJe6WUitf6yVt";
     private String dvc_token_api_22 = "dGqJqjcdSZq1XyvP5MSWTk:APA91bHIZJy7d317J2RBENDvjg89WdZxcuKo0SkCQgoeTrcJhUBC2fjt45cnpIUX3XFLXzLzJhVAwzYAs5abRQjamFiKMtqKlndeCKXZ8P6n8Xz335hY2asb1faB9UieQLmDYhtM3T7Z";
     private final String SENDER_ID = "108088922114";
     private FCMinterface fcm_interface;
     private DatabaseReference databaseReference;
 
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
+    private MessageAdapter messageAdapter;
+    private MainActivity mainActivity;
+
     private ArrayList<ReadMessageTopic> readMessageTopics = new ArrayList<>();
 
-    private TextView tv_db_read;
     private EditText et_text_message;
     private ImageView btn_send;
+
+    public MainActivity() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        recyclerView = findViewById(R.id.list_message);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(layoutManager);
 
         fcm_interface = ApiClient.getClient().create(FCMinterface.class);
         databaseReference = FirebaseDatabase.getInstance("https://mychatapp-8a494-default-rtdb.asia-southeast1.firebasedatabase.app").getReference();
@@ -104,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Subscribe Topic", "Gagal subscribe ke topik " + topic + "\nError: " + e.getMessage());
                     }
                 });
-        tv_db_read = findViewById(R.id.db_read);
+
         btn_send = findViewById(R.id.btn_send_1);
         et_text_message = (EditText)findViewById(R.id.text_message);
 
@@ -145,50 +162,62 @@ public class MainActivity extends AppCompatActivity {
         getMessage(topic);
     }
 
+
     public void getMessage(String topic) {
-        ChildEventListener childEventListener = new ChildEventListener() {
+
+        Query message_topic_query =  databaseReference.child("db_chat").child("chat").child(topic).orderByChild("timestamp");
+        message_topic_query.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
                 Log.d("On Child Added", snapshot.getKey());
                 ReadMessageTopic msg_topic = snapshot.getValue(ReadMessageTopic.class);
                 msg_topic.setMessage_id(snapshot.getKey());
+
                 readMessageTopics.add(msg_topic);
-                String output = "";
+                for (int i = 0; i < readMessageTopics.size(); i++) {
+                    Log.d(TAG, "listMessage[" + i + "] = " + readMessageTopics.get(i).getTimestamp());
+                }
+                /*Collections.sort(readMessageTopics, new Comparator<ReadMessageTopic>() {
+                    @Override
+                    public int compare(ReadMessageTopic o1, ReadMessageTopic o2) {
+                        return o1.getTimestamp().compareTo(o2.getTimestamp());
+                    }
+                });*/
+                messageAdapter = new MessageAdapter(readMessageTopics, token);
+                recyclerView.setAdapter(messageAdapter);
+
+                /*String output = "";
                 for (int i = 0; i < readMessageTopics.size(); i++) {
                     output += readMessageTopics.get(i).getMessage() + "-----" + readMessageTopics.get(i).getTimestamp() + "\n";
                 }
-                tv_db_read.setText(output);
+                tv_db_read.setText(output);*/
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+            public void onChildChanged(DataSnapshot snapshot, String previousChildName) {
 
             }
 
             @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            public void onChildRemoved(DataSnapshot snapshot) {
 
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(TAG, "loadMessage:onCancelled " + error.getMessage());
+            public void onChildMoved(DataSnapshot snapshot, String previousChildName) {
+
             }
-        };
 
-        Query message_topic_query =  databaseReference.child("db_chat").child("chat").child(topic).orderByChild("timestamp");
+            @Override
+            public void onCancelled(DatabaseError error) {
 
-        message_topic_query.addChildEventListener(childEventListener);
+            }
+        });
     }
 
     public void SendMessage(String str_msg){
         Date date = new Date();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 //        String str_msg = "Halo ini tes kirim";
 
@@ -265,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void SendMessage_2(String str_msg) {
         Date date = new Date();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String strDate = dateFormat.format(date);
         AtomicInteger msgId = new AtomicInteger();
 
@@ -283,5 +312,13 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseMessaging fm = FirebaseMessaging.getInstance();
         fm.send(message);
+    }
+
+    public String getToken() {
+        return this.token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
