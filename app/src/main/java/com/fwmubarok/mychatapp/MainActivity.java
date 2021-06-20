@@ -5,9 +5,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<ReadMessageTopic> readMessageTopics = new ArrayList<>();
 
     private TextView tv_db_read;
-    private Button btn_send_1, btn_send_2;
+    private EditText et_text_message;
+    private ImageView btn_send;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,26 +105,44 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         tv_db_read = findViewById(R.id.db_read);
-        btn_send_1 = findViewById(R.id.btn_send_1);
-        btn_send_2 = findViewById(R.id.btn_send_2);
+        btn_send = findViewById(R.id.btn_send_1);
+        et_text_message = (EditText)findViewById(R.id.text_message);
+
+        // initial button_send state
+        btn_send.setVisibility(View.GONE);
+
+        // listener to make button_send invisible when edit_text is empty
+        et_text_message.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.toString().equals("")) {
+                    btn_send.setVisibility(View.GONE);
+                } else {
+                    btn_send.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        // on click button_send
+        btn_send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                et_text_message.onEditorAction(EditorInfo.IME_ACTION_DONE);
+                SendMessage(et_text_message.getText().toString());
+                et_text_message.setText("");
+            }
+        });
+
         getMessage(topic);
-
-
-        btn_send_1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SendMessage("Halo ini tes kirim melalui HTTPS");
-            }
-        });
-
-        btn_send_2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SendMessage_2("Halo ini tes kirim melalui method");
-            }
-        });
-
-
     }
 
     public void getMessage(String topic) {
@@ -131,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 readMessageTopics.add(msg_topic);
                 String output = "";
                 for (int i = 0; i < readMessageTopics.size(); i++) {
-                    output += readMessageTopics.get(i).getMessage_id() + "-----" + readMessageTopics.get(i).getTimestamp() + "\n";
+                    output += readMessageTopics.get(i).getMessage() + "-----" + readMessageTopics.get(i).getTimestamp() + "\n";
                 }
                 tv_db_read.setText(output);
             }
