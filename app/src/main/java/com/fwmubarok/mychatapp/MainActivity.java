@@ -185,6 +185,10 @@ public class MainActivity extends AppCompatActivity {
                 });*/
                 messageAdapter = new MessageAdapter(readMessageTopics, token);
                 recyclerView.setAdapter(messageAdapter);
+                int position = messageAdapter.getItemCount()-1;
+                Log.d(TAG, "onChildAdded: adapter position" + position);
+                recyclerView.scrollToPosition(position);
+                messageAdapter.notifyDataSetChanged();
 
                 /*String output = "";
                 for (int i = 0; i < readMessageTopics.size(); i++) {
