@@ -254,10 +254,10 @@ public class MainActivity extends AppCompatActivity {
 
                 SendResponse sr = response.body();
                 Log.d("Sukses Kirim", Long.toString(sr.getMessage_id()));
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference myRef = database.getReference("message");
-
-                myRef.setValue("Hello, World!");
+//                FirebaseDatabase database = FirebaseDatabase.getInstance();
+//                DatabaseReference myRef = database.getReference("message");
+//
+//                myRef.setValue("Hello, World!");
 
                 SendToDB(sr.getMessage_id(), send_from, send_to, str_msg, strDate);
 
