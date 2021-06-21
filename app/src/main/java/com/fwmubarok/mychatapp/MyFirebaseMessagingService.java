@@ -1,11 +1,9 @@
 package com.fwmubarok.mychatapp;
 
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
@@ -59,7 +57,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setContentTitle("New Message")
                         .setContentText(messageBody);
 
-        Intent notificationIntent = new Intent(this, MainActivity   .class);
+        Intent notificationIntent = new Intent(this, ChatActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(contentIntent);
