@@ -81,6 +81,20 @@ public class ChatActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.list_message);
         recyclerView.setHasFixedSize(true);
+
+        // when keyboard showing, keep last chat at the bottom
+        // correspond with windowSoftInputMode="adjustResize" in AndroidManifest.xml
+        recyclerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if ( bottom < oldBottom) {
+                recyclerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        recyclerView.smoothScrollToPosition(readMessageTopics.size()-1);
+                    }
+                }, 50);
+            }
+        });
+
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
