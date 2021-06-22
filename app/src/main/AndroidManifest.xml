@@ -11,19 +11,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyChatApp">
-        <activity android:name=".SubscribeTopicActivity"></activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".SubscribeTopicActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity">
+
+        </activity>
         <activity
             android:name=".ChatActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-        
+
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="false">
