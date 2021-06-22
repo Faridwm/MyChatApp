@@ -12,16 +12,19 @@ import com.fwmubarok.mychatapp.R;
 import java.util.ArrayList;
 
 public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.ListViewHolder> {
-    private ArrayList<ArrayList<String>> listTopic;
 
-    public TopicAdapter(ArrayList<ArrayList<String>> listTopic) {
+    private ArrayList<ArrayList<String>> listTopic;
+    private OnTopicListener mOnTopicListener;
+
+    public TopicAdapter(ArrayList<ArrayList<String>> listTopic, OnTopicListener mOnTopicListener) {
         this.listTopic = listTopic;
+        this.mOnTopicListener = mOnTopicListener;
     }
 
     @Override
     public ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_row_topic, parent, false);
-        ListViewHolder listViewHolder = new ListViewHolder(view);
+        ListViewHolder listViewHolder = new ListViewHolder(view, mOnTopicListener);
         return listViewHolder;
     }
 
@@ -36,15 +39,28 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.ListViewHold
         return listTopic.size();
     }
 
-    public class ListViewHolder extends RecyclerView.ViewHolder {
+    public class ListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView tv_topic_name, tv_topic_lastMessage;
+        OnTopicListener onTopicListener;
 
-        public ListViewHolder(View itemView) {
+        public ListViewHolder(View itemView, OnTopicListener onTopicListener) {
             super(itemView);
 
             tv_topic_name = itemView.findViewById(R.id.topic_name);
             tv_topic_lastMessage = itemView.findViewById(R.id.topic_last_message);
+            this.onTopicListener = onTopicListener;
+
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            onTopicListener.onTopicClick(getBindingAdapterPosition());
+        }
+    }
+
+    public interface OnTopicListener {
+        void onTopicClick(int position);
     }
 }
