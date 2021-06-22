@@ -17,6 +17,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.util.HashMap;
 import java.util.Random;
 
 public class SubscribeTopicActivity extends AppCompatActivity {
@@ -33,6 +34,25 @@ public class SubscribeTopicActivity extends AppCompatActivity {
 
     }
 
+    public void CreateNewTopic(String topic) {
+        HashMap<String, String> data = new HashMap<>();
+        data.put("topic_name", topic);
+        databaseReference.child("db_chat").child("topics").push().setValue(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("Write_DB", "Berhasil Menulis Ke DB");
+                        SubscribeToTopic(topic);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("Write_DB", "Gagal Menulis Ke DB");
+                    }
+                });
+    }
+
     public String GenerateTopic() {
         Random rnd = new Random();
         int number = rnd.nextInt(999999);
@@ -40,16 +60,18 @@ public class SubscribeTopicActivity extends AppCompatActivity {
     }
 
     public void checkTopic(String topic) {
-        Query get_topic = databaseReference.child("db_chat").child("chat").child(topic);
+        Query get_topic = databaseReference.child("db_chat").child("topics");
         get_topic.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.getValue() != null) {
-                    SubscribeToTopic(topic);
-                } else {
-                    String msg = "topic " + topic + " tidak ditemukan";
-                    Log.d("Subscribe Topic", msg);
-                    Toast.makeText(SubscribeTopicActivity.this, msg, Toast.LENGTH_SHORT).show();
+                for (DataSnapshot sp: snapshot.getChildren()) {
+                    if (sp.getValue() != null) {
+                        SubscribeToTopic(topic);
+                    } else {
+                        String msg = "topic " + topic + " tidak ditemukan";
+                        Log.d("Subscribe Topic", msg);
+                        Toast.makeText(SubscribeTopicActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -65,7 +87,7 @@ public class SubscribeTopicActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        String msg = "Berhasil subcribe ke topik " + topic;
+                        String msg = "Berhasil subscribe ke topik " + topic;
                         Log.d("Subscribe Topic", msg);
                         Toast.makeText(SubscribeTopicActivity.this, msg, Toast.LENGTH_SHORT).show();
                     }
@@ -73,11 +95,31 @@ public class SubscribeTopicActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        String msg = "Gagal subcribe ke topik " + topic;
+                        String msg = "Gagal subscribe ke topik " + topic;
                         Log.d("Subscribe Topic", "Gagal subscribe ke topik " + topic + "\nError: " + e.getMessage());
                         Toast.makeText(SubscribeTopicActivity.this, msg, Toast.LENGTH_SHORT).show();
                     }
                 });
 
+    }
+
+    public void UnSubscribeToTopic(String topic) {
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(topic)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        String msg = "Berhasil unsubscribe ke topik " + topic;
+                        Log.d("Subscribe Topic", msg);
+                        Toast.makeText(SubscribeTopicActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        String msg = "Gagal unsubscribe ke topik " + topic;
+                        Log.d("Subscribe Topic", "Gagal subscribe ke topik " + topic + "\nError: " + e.getMessage());
+                        Toast.makeText(SubscribeTopicActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
