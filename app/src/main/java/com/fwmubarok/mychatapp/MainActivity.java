@@ -40,10 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private String token;
-    private boolean isExists;
     private ArrayList<ArrayList<String>> topics = new ArrayList<>();
     private DatabaseReference databaseReference;
-    private ApiClient apiClient;
     private FCMinterface fcm_interface;
 
     private RecyclerView recyclerView;
@@ -83,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         mainActivity = this;
 
-        // populate static array
+        /* populate static array
         ArrayList<String> s1 = new ArrayList<>();
         s1.add("Topic 01"); // topic name
         s1.add("Ada anak bertanya pada bapaknya"); // topic last message
@@ -94,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
         topics.add(s1);
         topics.add(s2);
-        Log.d(TAG, "ArrayList topics: " + topics);
+        Log.d(TAG, "ArrayList topics: " + topics); */
 
         topicAdapter = new TopicAdapter(topics);
         recyclerView.setAdapter(topicAdapter);
@@ -124,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getLastMessage(Set<String> topics) {
-        ArrayList<ArrayList<String>> data = new ArrayList<>();
         for (String topic: topics) {
             ArrayList<String> topic_lastMsg = new ArrayList<>();
             Query query_lastMsg = databaseReference.child("db_chat").child("chat").child(topic);
@@ -136,11 +133,13 @@ public class MainActivity extends AppCompatActivity {
                         for(DataSnapshot s_child: snapshot.getChildren()) {
                             ReadMessageTopic read = s_child.getValue(ReadMessageTopic.class);
                             topic_lastMsg.add(read.getMessage());
+                            addToTopics(topic_lastMsg);
                             Log.d(TAG, "onDataChange: Topic=" + topic + " Message=" + read.getMessage());
                         }
                     } else {
                         topic_lastMsg.add(topic);
                         topic_lastMsg.add("");
+                        addToTopics(topic_lastMsg);
                         Log.d(TAG, "onDataChange: Topic=" + topic + " Message Kosong");
                     }
                 }
@@ -153,6 +152,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    void addToTopics(ArrayList<String> topicLastMessage) {
+        topics.add(topicLastMessage);
+        Log.d(TAG, "Array Topics : " + topics);
+    }
 
     public void SubscribeToTopic(String topic, boolean isNew) {
         if (isNew) {
