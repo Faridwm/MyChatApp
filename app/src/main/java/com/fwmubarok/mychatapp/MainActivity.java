@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -36,7 +38,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTopicListener {
 
     private static final String TAG = "MainActivity";
     private String token;
@@ -93,9 +95,6 @@ public class MainActivity extends AppCompatActivity {
         topics.add(s1);
         topics.add(s2);
         Log.d(TAG, "ArrayList topics: " + topics); */
-
-        topicAdapter = new TopicAdapter(topics);
-        recyclerView.setAdapter(topicAdapter);
     }
 
     public void getSubscribedTopic(String token) {
@@ -155,6 +154,9 @@ public class MainActivity extends AppCompatActivity {
     void addToTopics(ArrayList<String> topicLastMessage) {
         topics.add(topicLastMessage);
         Log.d(TAG, "Array Topics : " + topics);
+
+        topicAdapter = new TopicAdapter(topics, this);
+        recyclerView.setAdapter(topicAdapter);
     }
 
     public void SubscribeToTopic(String topic, boolean isNew) {
@@ -184,5 +186,16 @@ public class MainActivity extends AppCompatActivity {
         Random rnd = new Random();
         int number = rnd.nextInt(999999);
         return String.format("%06d", number);
+    }
+
+    @Override
+    public void onTopicClick(int position) {
+        Log.d(TAG, "onTopicClick: Clickity Clackity Mantab");
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("Topics", topics.get(position));
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtras(bundle);
+        intent.putExtra(ChatActivity.EXTRA_TOKEN, token);
+        startActivity(intent);
     }
 }

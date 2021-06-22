@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -49,7 +50,8 @@ import retrofit2.Response;
 public class ChatActivity extends AppCompatActivity {
 
     private static final String TAG = ChatActivity.class.getName();
-    private final String topic = "test";
+    public static final String EXTRA_TOKEN = "";
+    private String topic = "";
     public String token;
     private String dvc_token = "e2vrdkAzTEy25cb66sKXAX:APA91bFsKMoG1WA4PT3DjZ-0GcwnEe1uLwMuDyfrQQmEocjk1l0BYdJZH0-pVcv3XrLvdCu0M_U17czpRBZAmh0wV-eaB3rfDNcMvQT6pP3SJzhMaL6i9j1M3-BO3urQJe6WUitf6yVt";
     private String dvc_token_api_22 = "dGqJqjcdSZq1XyvP5MSWTk:APA91bHIZJy7d317J2RBENDvjg89WdZxcuKo0SkCQgoeTrcJhUBC2fjt45cnpIUX3XFLXzLzJhVAwzYAs5abRQjamFiKMtqKlndeCKXZ8P6n8Xz335hY2asb1faB9UieQLmDYhtM3T7Z";
@@ -74,6 +76,8 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        ApiClient.BASE_URL = "https://fcm.googleapis.com/fcm/";
 
         recyclerView = findViewById(R.id.list_message);
         recyclerView.setHasFixedSize(true);
@@ -153,6 +157,14 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        // Retrieve token from MainActivity
+        token = getIntent().getStringExtra(EXTRA_TOKEN);
+
+        // Retrive topic name from MainActivity when topic name is clicked
+        Bundle bundle = this.getIntent().getExtras();
+        ArrayList<String> array_topic = bundle.getStringArrayList("Topics");
+        topic = array_topic.get(0);
+        Log.d(TAG, "onCreate: Topic" + topic);
         getMessage(topic);
     }
 
@@ -312,11 +324,10 @@ public class ChatActivity extends AppCompatActivity {
         fm.send(message);
     }
 
-    public String getToken() {
-        return this.token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.startActivity(new Intent(this, MainActivity.class));
+        return;
     }
 }
