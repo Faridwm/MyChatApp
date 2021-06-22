@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private String token;
+    private boolean isExists;
     private ArrayList<ArrayList<String>> topics = new ArrayList<>();
     private DatabaseReference databaseReference;
     private ApiClient apiClient;
@@ -123,32 +124,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getLastMessage(Set<String> topics) {
-//        ArrayList<ArrayList<String>> data = new ArrayList<>();
+        ArrayList<ArrayList<String>> data = new ArrayList<>();
         for (String topic: topics) {
             ArrayList<String> topic_lastMsg = new ArrayList<>();
             Query query_lastMsg = databaseReference.child("db_chat").child("chat").child(topic);
-            query_lastMsg.orderByChild("timestamp").limitToLast(1).addChildEventListener(new ChildEventListener() {
+            query_lastMsg.orderByChild("timestamp").limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-//                    topic_lastMsg.add(topic);
-                    ReadMessageTopic read = snapshot.getValue(ReadMessageTopic.class);
-//                    topic_lastMsg.add(read.getMessage());
-                    Log.d(TAG, "onDataChange: Topic=" + topic + " Message=" + read.getMessage());
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.getValue() != null) {
+                        topic_lastMsg.add(topic);
+                        for(DataSnapshot s_child: snapshot.getChildren()) {
+                            ReadMessageTopic read = s_child.getValue(ReadMessageTopic.class);
+                            topic_lastMsg.add(read.getMessage());
+                            Log.d(TAG, "onDataChange: Topic=" + topic + " Message=" + read.getMessage());
+                        }
+                    } else {
+                        topic_lastMsg.add(topic);
+                        topic_lastMsg.add("");
+                        Log.d(TAG, "onDataChange: Topic=" + topic + " Message Kosong");
+                    }
                 }
 
                 @Override
@@ -156,16 +150,15 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "onCancelled: " + error.getMessage());
                 }
             });
-
         }
     }
 
 
     public void SubscribeToTopic(String topic, boolean isNew) {
         if (isNew) {
-            if (!TopicIsExists(topic)) {
-                Log.d(TAG, "SubscribeToTopic: Topic Tidak ditemukan");
-            }
+//            if (!TopicIsExists(topic)) {
+//                Log.d(TAG, "SubscribeToTopic: Topic Tidak ditemukan");
+//            }
         }
         FirebaseMessaging.getInstance().subscribeToTopic(topic)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -183,25 +176,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public boolean TopicIsExists(String topic) {
-        final boolean[] isExists = {true};
-        Query topic_query = databaseReference.child("db_chat").child("chat");
-        topic_query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.hasChild(topic)) {
-                    isExists[0] = false;
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(TAG, "onCancelled: " + error.getMessage());
-            }
-        });
-
-        return isExists[0];
-    }
 
     public String GenerateNewTopic() {
         Random rnd = new Random();
