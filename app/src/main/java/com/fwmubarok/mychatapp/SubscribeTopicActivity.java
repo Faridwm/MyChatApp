@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -70,7 +71,7 @@ public class SubscribeTopicActivity extends AppCompatActivity {
                 } else {
                     if (TopicIsExists(topic)) {
                         Log.d(TAG, "Topik Ditemukan");
-//                        SubscribeToTopic(topic);
+                        SubscribeToTopic(topic);
                     } else {
                         Log.d(TAG, "Topik Tidak Ditemukan");
                         Toast.makeText(SubscribeTopicActivity.this, "Topic Tidak Ditemukan", Toast.LENGTH_SHORT).show();
@@ -89,7 +90,7 @@ public class SubscribeTopicActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void unused) {
                         Log.d("Write_DB", "Berhasil Menulis Ke DB");
-//                        SubscribeToTopic(topic);
+                        SubscribeToTopic(topic);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -172,5 +173,12 @@ public class SubscribeTopicActivity extends AppCompatActivity {
                         Toast.makeText(SubscribeTopicActivity.this, msg, Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.startActivity(new Intent(this, MainActivity.class));
+        return;
     }
 }

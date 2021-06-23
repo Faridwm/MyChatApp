@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.fwmubarok.mychatapp.Adapter.TopicAdapter;
@@ -95,6 +97,26 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTo
         topics.add(s1);
         topics.add(s2);
         Log.d(TAG, "ArrayList topics: " + topics); */
+    }
+
+    // onCreateOptionsMenu and onOptionsItemSelected are both method to handle action bar
+    @Override
+    public boolean onCreateOptionsMenu( Menu menu ) {
+
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( @NonNull MenuItem item ) {
+
+        switch (item.getItemId()){
+            case R.id.subscribe:
+                Intent intent = new Intent(this, SubscribeTopicActivity.class);
+                startActivity(intent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public void getSubscribedTopic(String token) {

@@ -91,7 +91,7 @@ public class ChatActivity extends AppCompatActivity {
                     public void run() {
                         recyclerView.smoothScrollToPosition(readMessageTopics.size()-1);
                     }
-                }, 50);
+                }, 100);
             }
         });
 
