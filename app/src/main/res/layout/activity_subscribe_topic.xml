@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/edit_text_border"
         android:hint="Insert topic ID here..."
+        android:inputType="number"
         android:padding="16dp"
         android:textCursorDrawable="@drawable/cursor" />
 
