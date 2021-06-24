@@ -212,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTo
 
     }
 
-
     public String GenerateNewTopic() {
         Random rnd = new Random();
         int number = rnd.nextInt(999999);

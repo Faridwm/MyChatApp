@@ -42,6 +42,7 @@
             android:imeOptions="actionDone"
             android:paddingHorizontal="20dp"
             android:paddingVertical="4dp"
+            android:maxLines="2"
             android:textCursorDrawable="@drawable/cursor"
             android:hint="Write your message..."/>
 
