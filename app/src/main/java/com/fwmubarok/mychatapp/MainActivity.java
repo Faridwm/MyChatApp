@@ -3,14 +3,20 @@ package com.fwmubarok.mychatapp;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.fwmubarok.mychatapp.Adapter.TopicAdapter;
@@ -82,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTo
 
         recyclerView = findViewById(R.id.topic_list);
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
         recyclerView.setLayoutManager(layoutManager);
         mainActivity = this;
 
@@ -154,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTo
                         for(DataSnapshot s_child: snapshot.getChildren()) {
                             ReadMessageTopic read = s_child.getValue(ReadMessageTopic.class);
                             topic_lastMsg.add(read.getMessage());
+                            topic_lastMsg.add(read.getTimestamp());
                             addToTopics(topic_lastMsg);
                             Log.d(TAG, "onDataChange: Topic=" + topic + " Message=" + read.getMessage());
                         }
@@ -225,5 +233,35 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTo
     public void onBackPressed() {
         super.onBackPressed();
         finishAffinity();
+    }
+
+    // Divider class
+    public class SimpleDividerItemDecoration extends RecyclerView.ItemDecoration {
+        private Drawable mDivider;
+
+        public SimpleDividerItemDecoration(Context context) {
+            mDivider = ContextCompat.getDrawable(context, R.drawable.line_divider);
+        }
+
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+            super.onDrawOver(c, parent, state);
+
+            int left = parent.getPaddingLeft();
+            int right = parent.getWidth() - parent.getPaddingRight();
+
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = parent.getChildAt(i);
+
+                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                int top = child.getBottom() + params.bottomMargin;
+                int bottom = top + mDivider.getIntrinsicHeight();
+
+                mDivider.setBounds(left, top, right, bottom);
+                mDivider.draw(c);
+            }
+        }
     }
 }
