@@ -36,16 +36,21 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.ListViewHold
         holder.tv_topic_lastMessage.setText(listTopic.get(position).get(1));
 
         // format timestamp to hour and minute
-        String lastUpdate = listTopic.get(position).get(2);
-        SimpleDateFormat fromResponse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat myFormat = new SimpleDateFormat("HH:mm");
-        String reformatDate = null;
-        try {
-            reformatDate = myFormat.format(fromResponse.parse(lastUpdate));
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (listTopic.get(position).get(2) != "") {
+            String lastUpdate = listTopic.get(position).get(2);
+            SimpleDateFormat fromResponse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat myFormat = new SimpleDateFormat("HH:mm");
+            String reformatDate = null;
+            try {
+                reformatDate = myFormat.format(fromResponse.parse(lastUpdate));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            holder.tv_topic_lastMessageTime.setText(reformatDate);
+        } else {
+            holder.tv_topic_lastMessageTime.setText("");
         }
-        holder.tv_topic_lastMessageTime.setText(reformatDate);
+
     }
 
     @Override

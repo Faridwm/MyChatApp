@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -182,6 +184,44 @@ public class ChatActivity extends AppCompatActivity {
         getMessage(topic);
     }
 
+    // onCreateOptionsMenu and onOptionsItemSelected are both method to handle action bar
+    @Override
+    public boolean onCreateOptionsMenu( Menu menu ) {
+
+        getMenuInflater().inflate(R.menu.menu_chat, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( @NonNull MenuItem item ) {
+
+        switch (item.getItemId()){
+            case R.id.unsubscribe:
+                unSubscribeToTopic(topic);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void unSubscribeToTopic(String topic) {
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(topic)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        String msg = "Berhasil unsubscribe ke topik " + topic;
+                        Log.d("Subscribe Topic", msg);
+                        Toast.makeText(ChatActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        String msg = "Gagal unsubscribe ke topik " + topic;
+                        Log.d("Subscribe Topic", "Gagal subscribe ke topik " + topic + "\nError: " + e.getMessage());
+                        Toast.makeText(ChatActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
     public void getMessage(String topic) {
 

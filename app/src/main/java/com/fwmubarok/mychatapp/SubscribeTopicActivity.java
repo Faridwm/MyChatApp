@@ -155,26 +155,6 @@ public class SubscribeTopicActivity extends AppCompatActivity {
 
     }
 
-    public void UnSubscribeToTopic(String topic) {
-        FirebaseMessaging.getInstance().unsubscribeFromTopic(topic)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        String msg = "Berhasil unsubscribe ke topik " + topic;
-                        Log.d("Subscribe Topic", msg);
-                        Toast.makeText(SubscribeTopicActivity.this, msg, Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        String msg = "Gagal unsubscribe ke topik " + topic;
-                        Log.d("Subscribe Topic", "Gagal subscribe ke topik " + topic + "\nError: " + e.getMessage());
-                        Toast.makeText(SubscribeTopicActivity.this, msg, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();

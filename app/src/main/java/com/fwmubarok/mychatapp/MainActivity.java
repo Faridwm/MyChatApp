@@ -168,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTo
                     } else {
                         topic_lastMsg.add(topic);
                         topic_lastMsg.add("");
+                        topic_lastMsg.add("");
                         addToTopics(topic_lastMsg);
                         Log.d(TAG, "onDataChange: Topic=" + topic + " Message Kosong");
                     }
