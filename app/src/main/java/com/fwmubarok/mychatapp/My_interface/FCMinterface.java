@@ -20,6 +20,6 @@ public interface FCMinterface {
     Call<SendResponse> sendMessage(@Body Message message);
 
     @Headers("Authorization:key="+SERVER_KEY)
-    @GET("{dvc_token}")
-    Call<SubscribedTopicResponse> getSubscribedTopic(@Path("dvc_token") String token, @Query("details") String details);
+    @GET("iid/info/{dvc_token}")
+    Call<SubscribedTopicResponse> getSubscribedTopic(@Path(value = "dvc_token", encoded = true) String token, @Query("details") String details);
 }

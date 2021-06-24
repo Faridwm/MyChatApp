@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ApiClient.BASE_URL = "https://iid.googleapis.com/iid/info/";
+        ApiClient.BASE_URL = "https://iid.googleapis.com/";
         fcm_interface = ApiClient.getClient().create(FCMinterface.class);
         databaseReference = FirebaseDatabase.getInstance("https://mychatapp-8a494-default-rtdb.asia-southeast1.firebasedatabase.app").getReference();
 
