@@ -101,24 +101,24 @@ public class ChatActivity extends AppCompatActivity {
         fcm_interface = ApiClient.getClient().create(FCMinterface.class);
         databaseReference = FirebaseDatabase.getInstance("https://mychatapp-8a494-default-rtdb.asia-southeast1.firebasedatabase.app").getReference();
 
-//        FirebaseMessaging.getInstance().getToken()
-//                .addOnCompleteListener(new OnCompleteListener<String>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<String> task) {
-//                        if (!task.isSuccessful()) {
-//                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-//                            return;
-//                        }
-//
-//                        // Get new FCM registration token
-//                        token = task.getResult();
-////                        dvc_token = token;
-//                        // Log and toast
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        token = task.getResult();
+//                        dvc_token = token;
+                        // Log and toast
 //                        String msg = getString(R.string.msg_token_fmt, token);
 //                        Log.d(TAG, msg);
 //                        Toast.makeText(ChatActivity.this, msg, Toast.LENGTH_SHORT).show();
-//                    }
-//                });
+                    }
+                });
 
 //        FirebaseMessaging.getInstance().subscribeToTopic(topic)
 //                .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -172,7 +172,7 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         // Retrieve token from MainActivity
-        token = getIntent().getStringExtra(EXTRA_TOKEN);
+//        token = getIntent().getStringExtra(EXTRA_TOKEN);
 
         // Retrive topic name from MainActivity when topic name is clicked
         Bundle bundle = this.getIntent().getExtras();
