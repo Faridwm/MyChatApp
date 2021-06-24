@@ -220,4 +220,10 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTo
         intent.putExtra(ChatActivity.EXTRA_TOKEN, token);
         startActivity(intent);
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity();
+    }
 }
