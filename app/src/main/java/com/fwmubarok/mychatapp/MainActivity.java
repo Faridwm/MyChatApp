@@ -137,9 +137,11 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.OnTo
                     return;
                 }
                 SubscribedTopicResponse subscribedTopicResponse = response.body();
-                Log.d(TAG, "onResponse: " + subscribedTopicResponse.getRel().getTopics().keySet());
-                Set<String> set_topic = subscribedTopicResponse.getRel().getTopics().keySet();
-                getLastMessage(set_topic);
+                if (subscribedTopicResponse.getRel() != null) {
+                    Set<String> set_topic = subscribedTopicResponse.getRel().getTopics().keySet();
+                    getLastMessage(set_topic);
+                    Log.d(TAG, "onResponse: " + subscribedTopicResponse.getRel().getTopics().keySet());
+                }
             }
 
             @Override
